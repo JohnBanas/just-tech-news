@@ -16,17 +16,24 @@ class Post extends Model {
           'post_url',
           'title',
           'created_at',
-          [
-            sequelize.literal('(SELECT COUNT(*) FROM vote WHERE post.id = vote.post_id)'),
-            'vote_count'
-          ]
+          [sequelize.literal('(SELECT COUNT(*) FROM vote WHERE post.id = vote.post_id)'), 'vote_count']
+        ],
+        include: [
+          {
+            model: models.Comment,
+            attributes: ['id', 'comment_text', 'post_id', 'user_id', 'created_at'],
+            include: {
+              model: models.User,
+              attributes: ['username']
+            }
+          }
         ]
       });
     });
   }
 }
 
-//creates fields/columns for Post model
+// create fields/columns for Post model
 Post.init(
   {
     id: {
@@ -43,7 +50,7 @@ Post.init(
       type: DataTypes.STRING,
       allowNull: false,
       validate: {
-        isUrl: true
+        isURL: true
       }
     },
     user_id: {
